@@ -49,6 +49,28 @@ body {
 	); /* 원하는 색상으로 설정 */
 }
 
+@layer components {
+	.user-info-detail-tab {
+		@apply flex w-full items-center justify-between px-3 py-2;
+		@apply font-normal text-gray-600; /* 기본 스타일 */
+		@apply transition-all duration-200; /* 부드러운 전환 효과 */
+
+		/* 호버 효과 */
+		@apply hover:bg-[#F2F2F2] hover:text-base hover:font-semibold hover:text-black;
+	}
+
+	/* 활성화된 탭 스타일 */
+	.user-info-detail-tab.active {
+		@apply bg-[#F2F2F2] text-base font-semibold text-black;
+	}
+}
+
+@layer utilities {
+	.active-black {
+		@apply rounded-lg bg-black px-4 py-2 text-white;
+	}
+}
+
 /* :root {
   --foreground-rgb: 0 0, 0;
   --background-start-rgb: 214, 219, 220;

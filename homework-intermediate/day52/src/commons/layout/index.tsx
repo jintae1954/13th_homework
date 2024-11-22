@@ -8,6 +8,7 @@ import { PropsWithChildren } from 'react';
 export default function Layout({ children }: PropsWithChildren) {
 	const pathname = usePathname();
 	const params = useParams();
+
 	const HIDDEN_BOARD_BANNER = [
 		'/boards/new',
 		`/boards/${params.boardId}/edit`,

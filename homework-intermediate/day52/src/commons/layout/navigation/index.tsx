@@ -14,11 +14,13 @@ import profile from '@/assets/profile.png';
 import logo from '@/assets/logo.png';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { FetchUserLoggedInDocument } from '@/commons/graphql/graphql';
 import { useState } from 'react';
 import * as PortOne from '@portone/browser-sdk/v2';
 import { v4 as uuidv4 } from 'uuid';
+import { CREATE_POINT_TRANSACTIONS_OF_LOADING } from '@/commons/apis/mutations/mutation-create-point-transaction-of-loading';
+import { LOGOUT_USER } from '@/commons/apis/mutations/mutation-logout-user';
 
 const DynamicMenu = dynamic(() => import('antd').then((mod) => mod.Menu), {
 	ssr: false,
@@ -40,79 +42,39 @@ const dynamicMenuItems = [
 	{ label: <Link href={'/myapis'}>나만의API 컨텐츠</Link>, key: '나만의API' },
 ];
 
-const LOGOUT_USER = gql`
-	mutation logoutUser {
-		logoutUser
-	}
-`;
-
-const CREATE_POINT_TRANSACTIONS_OF_LOADING = gql`
-	mutation createPointTransactionOfLoading($paymentId: ID!) {
-		createPointTransactionOfLoading(paymentId: $paymentId) {
-			_id
-			impUid
-			amount
-			balance
-			status
-			statusDetail
-			user {
-				_id
-				email
-				name
-			}
-			createdAt
-			updatedAt
-			deletedAt
-		}
-	}
-`;
-
 export default function Navigation() {
+	return (
+		<div className="flex w-full max-w-7xl items-center justify-between bg-white p-4">
+			<DynamicMenu
+				className="flex-1 border-none"
+				mode="horizontal"
+				defaultSelectedKeys={['1']}
+				items={dynamicMenuItems}
+				theme="light"
+			/>
+			<LoginProfile />
+		</div>
+	);
+}
+
+function LoginProfile() {
 	const router = useRouter();
 	const { data: userLoggedIn } = useQuery(FetchUserLoggedInDocument);
-	const [createPointTransactionsOfLoading] = useMutation(
-		CREATE_POINT_TRANSACTIONS_OF_LOADING,
-	);
-
 	const { accessToken, setAccessToken } = useAccessTokenStore();
 	const [dropped, isDropped] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedAmount, setSelectedAmount] = useState(0);
+
+	const [createPointTransactionsOfLoading] = useMutation(
+		CREATE_POINT_TRANSACTIONS_OF_LOADING,
+	);
 	const [logoutUser] = useMutation(LOGOUT_USER);
 
-	const onClickLoginButton = () => router.push('/login');
 	const showModal = () => setIsOpen(true);
+
 	const handleCancel = () => setIsOpen(false);
 
-	const onClickLogout = async () => {
-		try {
-			await logoutUser();
-			setAccessToken(null);
-			router.push('/login'); // 로그아웃 후 로그인 페이지로 이동
-		} catch (error) {
-			if (error instanceof Error) console.error('로그아웃 실패:', error);
-		}
-	};
-
-	const handleOk = async () => {
-		if (!selectedAmount) {
-			alert('충전할 금액을 선택해주세요.');
-			return;
-		}
-
-		try {
-			// paymentId 생성
-			const paymentId = uuidv4();
-			// 결제 요청
-			await onClickPayment(paymentId);
-		} catch (error) {
-			if (error instanceof Error) console.error('결제 실패:', error);
-		} finally {
-			// 결제 요청 완료 후 모달 닫기
-			setIsOpen(false);
-			isDropped(false);
-		}
-	};
+	const onClickLoginButton = () => router.push('/login');
 
 	const onClickPayment = async (paymentId: string) => {
 		try {
@@ -141,6 +103,36 @@ export default function Navigation() {
 			}
 		} catch (error) {
 			console.error('결제 요청 실패:', error); // 결제 실패 시 로직
+		}
+	};
+
+	const onClickLogout = async () => {
+		try {
+			await logoutUser();
+			setAccessToken(null);
+			router.push('/login'); // 로그아웃 후 로그인 페이지로 이동
+		} catch (error) {
+			if (error instanceof Error) console.error('로그아웃 실패:', error);
+		}
+	};
+
+	const handleOk = async () => {
+		if (!selectedAmount) {
+			alert('충전할 금액을 선택해주세요.');
+			return;
+		}
+
+		try {
+			// paymentId 생성
+			const paymentId = uuidv4();
+			// 결제 요청
+			await onClickPayment(paymentId);
+		} catch (error) {
+			if (error instanceof Error) console.error('결제 실패:', error);
+		} finally {
+			// 결제 요청 완료 후 모달 닫기
+			setIsOpen(false);
+			isDropped(false);
 		}
 	};
 
@@ -173,14 +165,7 @@ export default function Navigation() {
 	];
 
 	return (
-		<div className="flex w-full max-w-7xl items-center justify-between bg-white p-4">
-			<DynamicMenu
-				className="flex-1 border-none"
-				mode="horizontal"
-				defaultSelectedKeys={['1']}
-				items={dynamicMenuItems}
-				theme="light"
-			/>
+		<>
 			{accessToken ? (
 				<div className="flex items-center gap-2">
 					<Dropdown
@@ -234,6 +219,6 @@ export default function Navigation() {
 					<RightOutlined />
 				</button>
 			)}
-		</div>
+		</>
 	);
 }

@@ -2,7 +2,6 @@
 
 import BoardsPagination from '@/components/boards-list/pagination';
 import BoardList from '@/components/boards-list/list';
-// import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { FetchBoardsDocument } from '@/commons/graphql/graphql';
 import BoardTitleSearch from '@/components/boards-list/search';
@@ -11,8 +10,6 @@ import { useBoardStore } from '@/commons/stores/board-store';
 export default function BoardsPage() {
 	const { titleSearch, setTitleSearch, activePage, setActivePage } =
 		useBoardStore();
-	// const [activePage, setActivePage] = useState(1);
-	// const [titleSearch, setTitleSearch] = useState('');
 	const { data, refetch } = useQuery(FetchBoardsDocument);
 
 	return (

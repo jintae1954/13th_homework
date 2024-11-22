@@ -47,20 +47,6 @@ export const DELETE_TRAVEL_PRODUCT_QUESTION = gql`
 	}
 `;
 
-export const FETCH_USER_LOGGED_IN = gql`
-	query fetchUserLoggedIn {
-		fetchUserLoggedIn {
-			_id
-			email
-			name
-			userPoint {
-				_id
-				amount
-			}
-		}
-	}
-`;
-
 export function ProductQuestionItem(props) {
 	const { productQuestion, user, refetch } = props;
 
